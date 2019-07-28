@@ -1,8 +1,7 @@
 import os
 import argparse
 import logging
-from PIL import Image
-from PIL.ExifTags import TAGS
+from photomover import photomover
 
 def main():
     arg_parser = argparse.ArgumentParser()
@@ -23,24 +22,21 @@ def main():
         help = 'dry run',
         action='store_true'
     )
+    arg_parser.add_argument(
+        '-c', '--copy',
+        help = 'perform copy action instead of move',
+        action='store_true'
+    )
 
     args = arg_parser.parse_args()
     input_dir = args.input
     output_dir = args.output
     dry_run = args.dry_run
+    copy = args.copy
 
+    logging.getLogger().setLevel(logging.INFO)
 
-    if not os.path.exists(input_dir):
-        os.mkdir(input_dir)
-        logging.warning('Input directory {} does not exit, creating new directory. '.format(input_dir))
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-        logging.warning('Output directory {} does not exit, creating new directory. '.format(output_dir))
-
-
-    print(input_dir)
-    print(output_dir)
-    print(dry_run)
+    photomover(input_dir, output_dir, dry_run, copy)
 
 
 if __name__ == '__main__':
