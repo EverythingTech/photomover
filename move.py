@@ -1,9 +1,10 @@
-import os
+import sys
 import argparse
 import logging
 from photomover import photomover
 
 def main():
+
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
         '-i', '--input',
@@ -28,7 +29,12 @@ def main():
         action='store_true'
     )
 
+    if len(sys.argv) < 2:
+        arg_parser.print_help()
+        sys.exit(1)
+
     args = arg_parser.parse_args()
+
     input_dir = args.input
     output_dir = args.output
     dry_run = args.dry_run
