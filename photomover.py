@@ -4,7 +4,7 @@ import glob
 import exifread
 import shutil
 
-def _move (file_dir:str, destination_dir:str, dry_run=False, copy=False):
+def _move (file_dir:str, destination_dir:str, dry_run=False, copy=False, enable_sidecar=False):
     with open(file_dir, 'rb') as f:
         tags = exifread.process_file(f)
         if len(tags) == 0:
@@ -18,7 +18,13 @@ def _move (file_dir:str, destination_dir:str, dry_run=False, copy=False):
     destination_dir = os.path.join(destination_dir, y_str, ym_str, ymd_str)
 
     filename, extension = os.path.splitext(file_dir)
-    file_family = glob.glob(filename+'.*') # all files with the same name, including sidecar files
+    sidecar_formats = ['xmp']
+    file_family = [file_dir]
+    if enable_sidecar:
+        for sidecar_ext in sidecar_formats:
+            sidecar_dir = filename + '.' + sidecar_ext
+            if os.path.exists(sidecar_dir):
+                file_family.append(sidecar_dir) # all files with the same name, including sidecar files
 
     if not os.path.exists(destination_dir):
         if not dry_run:
@@ -79,8 +85,10 @@ def photomover(input_dir:str, output_dir:str, dry_run=False, copy=False):
             os.mkdir(raw_dir)
         logging.warning('Raw files directory {} does not exit, creating new directory. '.format(raw_dir))
 
+    for f in raw_files:
+        _move(f, raw_dir, dry_run, copy, enable_sidecar=True)
+
     for f in compact_files:
         _move(f, compact_dir, dry_run, copy)
 
-    for f in raw_files:
-        _move(f, raw_dir, dry_run, copy)
+
